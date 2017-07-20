@@ -13,6 +13,8 @@ package zapclient;
 */
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+
 import org.zaproxy.clientapi.core.ApiResponse;
 import org.zaproxy.clientapi.core.ApiResponseElement;
 import org.zaproxy.clientapi.core.ApiResponseList;
@@ -22,15 +24,8 @@ import org.zaproxy.clientapi.core.ClientApiException;
 
 
 public class ScriptBasedAuthentication {
-	private static List<String> scripts = null;
-	private static final String scriptname = "auth_dvwa";
-	private static final String logged_in_indicator = "<a href=\"logout.php\">Logout</a>";
-	private static String contextId = null;
-	private static String userId;
 
-
-
-	private static void loadAllScripts(ClientApi clientApi) throws ClientApiException{
+	private static void loadAllScripts(ArrayList<String> scripts, ClientApi clientApi) throws ClientApiException{
 		ApiResponseList scriptsList = (ApiResponseList) clientApi.script.listScripts();
 		for(ApiResponse res:scriptsList.getItems()){
 			ApiResponseSet set = (ApiResponseSet) res;
@@ -38,26 +33,6 @@ public class ScriptBasedAuthentication {
 		}
 	}
 
-	private static String addLoadUser(ClientApi clientApi,String user) throws ClientApiException{
-		ApiResponseList usersList = (ApiResponseList)clientApi.users.usersList(contextId);
-		// Controllo esistenza utente
-		for(ApiResponse resp:usersList.getItems()){
-			String str = ((ApiResponseSet)resp).getValue("name").toString();
-			if(str.equals(user)){
-				userId = ((ApiResponseSet)resp).getValue("id").toString();
-				return userId;
-			}
-		}
-		//Aggiungo utente se non esiste
-		ApiResponse resp = clientApi.users.newUser(contextId, user);
-		userId = ((ApiResponseElement)resp).getValue().toString();
-		StringBuilder userCredentials = new StringBuilder();
-		userCredentials.append("Username=").append("admin").append("&Password=").append("password");
-		clientApi.users.setAuthenticationCredentials(contextId, userId, userCredentials.toString());
-		clientApi.users.setUserEnabled(contextId, userId, "True");
-		return userId;
-
-	}
 
 	public static void listUserConfigInformation(ClientApi clientApi) throws ClientApiException {
 		String contextId = "1";
@@ -71,58 +46,40 @@ public class ScriptBasedAuthentication {
 		}
 	}
 
-	private static void loadZestScript(ClientApi clientApi, String filename) throws ClientApiException{
+	private static void loadZestScript(ClientApi clientApi, String script_name, String script_path) throws ClientApiException{
 		String scriptengine = "Zest : Mozilla Zest";
 		String scripttype = "authentication";
 		String description = "Zest Script loaded via Java API Client for automated security test of DVWA";
-		clientApi.script.load(scriptname, scripttype, scriptengine, filename, description);
-			clientApi.script.enable(scriptname);
+		clientApi.script.load(script_name, scripttype, scriptengine, script_path, description);
+			clientApi.script.enable(script_name);
 	}
 
-	public static void setLoggedInIndicator(ClientApi clientApi,final String indicator) throws ClientApiException {
+	public static void setLoggedInIndicator(ClientApi clientApi, String contextId, final String indicator) throws ClientApiException {
 		String loggedInIndicator = indicator;
-		clientApi.authentication.setLoggedInIndicator(contextId,
-		java.util.regex.Pattern.quote(loggedInIndicator));
+		clientApi.authentication.setLoggedInIndicator(contextId, java.util.regex.Pattern.quote(loggedInIndicator));
 	}
 
-	private static void setScriptBasedAuthentication(ClientApi clientApi) throws ClientApiException{
+	private static void setScriptBasedAuthentication(ClientApi clientApi, String contextId, String script_name, String loginURL) throws ClientApiException{
 		StringBuilder scriptBasedConfig = new StringBuilder();
-		scriptBasedConfig.append("scriptName=").append(scriptname).append("&LoginURL=").append("http://192.168.1.27/dvwa/login.php");
+		scriptBasedConfig.append("scriptName=").append(script_name).append("&LoginURL=").append(loginURL);
 		clientApi.authentication.setAuthenticationMethod(contextId, "scriptBasedAuthentication", scriptBasedConfig.toString());
 	}
 
-	// Se l'autenticazione e andata a buon fine viene ritornato l'id utente
-	public static String authenticate(ClientApi clientApi, String id, String zest_path){
+	public static void load(ClientApi clientApi, String contextId, String script_path, String loginURL) throws ClientApiException{
 
-		contextId = id;
+		ArrayList<String> scripts = new ArrayList<String>();
+		String script_name = "auth_script";
+		
+		/* Carico gli script già presenti */
+		loadAllScripts(scripts, clientApi);
+		
+		/* Carico Script Autenticazione in ZAP */
+		if(!scripts.contains(script_name))
+			loadZestScript(clientApi, script_name, script_path);
 
-		if(scripts==null)
-			scripts = new ArrayList<String>();
-		try{
+		/* Imposto metodo di autenticazione basato su script */
+		setScriptBasedAuthentication(clientApi, contextId, script_name, loginURL);
 
-
-
-			/* Carico gli script gia presenti */
-			loadAllScripts(clientApi);
-			/* Carico Script Autenticazione in ZAP */
-			if(!scripts.contains(scriptname))
-				loadZestScript(clientApi,zest_path);
-
-			/* Imposto metodo di autenticazione basato su script */
-			setScriptBasedAuthentication(clientApi);
-
-			/* aggiungo utente */
-			addLoadUser(clientApi, "user");
-
-			/* Imposto Regex per identificare le pagine autenticate */
-			setLoggedInIndicator(clientApi,logged_in_indicator);
-
-
-
-			return userId;
-		}catch(ClientApiException ex){
-			ex.printStackTrace();
-			return null;
-		}
+	
 	}
 }

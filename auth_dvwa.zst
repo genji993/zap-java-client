@@ -39,16 +39,6 @@
             "elementType": "ZestExpressionStatusCode"
           },
           "elementType": "ZestAssertion"
-        },
-        {
-          "rootExpression": {
-            "length": 1523,
-            "approx": 1,
-            "variableName": "response.body",
-            "not": false,
-            "elementType": "ZestExpressionLength"
-          },
-          "elementType": "ZestAssertion"
         }
       ],
       "followRedirects": false,
@@ -89,16 +79,6 @@
             "elementType": "ZestExpressionStatusCode"
           },
           "elementType": "ZestAssertion"
-        },
-        {
-          "rootExpression": {
-            "length": 0,
-            "approx": 1,
-            "variableName": "response.body",
-            "not": false,
-            "elementType": "ZestExpressionLength"
-          },
-          "elementType": "ZestAssertion"
         }
       ],
       "followRedirects": false,
@@ -126,16 +106,6 @@
             "code": 200,
             "not": false,
             "elementType": "ZestExpressionStatusCode"
-          },
-          "elementType": "ZestAssertion"
-        },
-        {
-          "rootExpression": {
-            "length": 7267,
-            "approx": 1,
-            "variableName": "response.body",
-            "not": false,
-            "elementType": "ZestExpressionLength"
           },
           "elementType": "ZestAssertion"
         }
@@ -167,16 +137,6 @@
             "elementType": "ZestExpressionStatusCode"
           },
           "elementType": "ZestAssertion"
-        },
-        {
-          "rootExpression": {
-            "length": 7180,
-            "approx": 1,
-            "variableName": "response.body",
-            "not": false,
-            "elementType": "ZestExpressionLength"
-          },
-          "elementType": "ZestAssertion"
         }
       ],
       "followRedirects": false,
@@ -204,16 +164,6 @@
             "code": 200,
             "not": false,
             "elementType": "ZestExpressionStatusCode"
-          },
-          "elementType": "ZestAssertion"
-        },
-        {
-          "rootExpression": {
-            "length": 7180,
-            "approx": 1,
-            "variableName": "response.body",
-            "not": false,
-            "elementType": "ZestExpressionLength"
           },
           "elementType": "ZestAssertion"
         }
