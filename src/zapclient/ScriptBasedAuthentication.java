@@ -87,7 +87,7 @@ public class ScriptBasedAuthentication {
 
 	private static void setScriptBasedAuthentication(ClientApi clientApi) throws ClientApiException{
 		StringBuilder scriptBasedConfig = new StringBuilder();
-		scriptBasedConfig.append("scriptName=").append(scriptname).append("&LoginURL=").append("http://localhost:8888/dvwa/login.php");
+		scriptBasedConfig.append("scriptName=").append(scriptname).append("&LoginURL=").append("http://192.168.1.27/dvwa/login.php");
 		clientApi.authentication.setAuthenticationMethod(contextId, "scriptBasedAuthentication", scriptBasedConfig.toString());
 	}
 
